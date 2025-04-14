@@ -1,0 +1,25 @@
+# Dockerfile.frontend
+FROM node:18
+
+# Crear usuario no root (compatible con Codespaces)
+RUN useradd -m vscode && usermod -aG sudo vscode
+
+# Configurar el entorno de Node
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json ./
+
+# Instalar dependencias
+RUN npm install
+
+# Copiar el código del frontend
+COPY frontend .
+
+# Variables de entorno (ajustar según tu proyecto)
+ENV NODE_ENV=development \
+    REACT_APP_API_BASE_URL=http://localhost:8000
+
+# Cambiar al usuario no root
+USER vscode
+
+# Comando para iniciar la aplicación
+CMD ["npm", "start"]
