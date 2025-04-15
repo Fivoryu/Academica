@@ -1,0 +1,34 @@
+# Dockerfile.backend
+FROM python:3.12-slim
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Crear usuario no root (requerido por Codespaces)
+RUN useradd -m vscode && usermod -aG sudo vscode
+
+# Configurar el entorno de Python
+WORKDIR /backend
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar el código del backend
+COPY backend .
+
+# Cambiar al directorio correcto para ejecutar manage.py
+WORKDIR /backend/gestion_academica
+
+# Configurar variables de entorno (ajustar según tu proyecto)
+ENV PYTHONUNBUFFERED=1 \
+    DJANGO_SETTINGS_MODULE=gestion_academica.settings \
+    DATABASE_URL=postgres://postgres:postgres@db:5432/appdb
+
+# Cambiar al usuario no root
+USER vscode
+
+# Comando para ejecutar el servidor (ajusta según necesites)
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
